@@ -220,6 +220,9 @@ export default {
   },
   created(){
     this.filteredIndicators=inds;
+    this.filteredIndicators = _.filter(inds, {
+          "type":"Primary"
+        });
   },
   mounted(){
     this.loader();
