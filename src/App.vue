@@ -128,8 +128,6 @@
         </v-row>
         <v-row class="fill-height">
             <v-col>
-
-              <!-- <div id="holder"></div> -->
                <v-data-table
                v-if="showTable"
                 dense
@@ -182,7 +180,16 @@ export default {
         { text: 'Goal', value: 'goal' },
         { text: 'Policy Area', value: 'policy_area' },
         { text: 'Type', value: 'type' },
-        { text: 'Current Value', value: 'current_value' }
+        { text: 'Current Date', value: 'current_date' },
+        { text: 'Current Value', value: 'current_value' },
+        { text: 'State Rank', value: 'state_rank' },
+        { text: 'Peer Rank', value: 'peer_rank' },
+
+        { text: 'Previous Date', value: 'previous_date' },
+        { text: 'Previous Value', value: 'previous_value' },
+        { text: 'Previous State Rank', value: 'previous_state_rank' },
+        { text: 'Previous Peer Rank', value: 'previous_peer_rank' },
+        { text: 'Trend', value: 'metric_trend' }
       ],
   }),
   computed:{
