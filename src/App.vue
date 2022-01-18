@@ -130,7 +130,7 @@
         </v-row>
 
       <v-row>
-        <v-cols cols="2">
+        <!-- <v-cols cols="2">
           <v-combobox
               v-model="select"
               :items="combos"
@@ -141,8 +141,8 @@
               style="margin-left:12px;"
               @change="changeType"
             ></v-combobox>
-        </v-cols>
-                <!-- <v-cols cols="2">
+        </v-cols> -->
+       <v-cols cols="2">
           <v-combobox
               v-model="select2"
               :items="trends"
@@ -153,7 +153,7 @@
               style="margin-left:12px;"
               @change="changeTrend"
             ></v-combobox>
-        </v-cols> -->
+        </v-cols> 
         <v-cols cols="2">
           <v-combobox
               v-model="select3"
