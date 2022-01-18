@@ -142,7 +142,7 @@
               @change="changeType"
             ></v-combobox>
         </v-cols>
-                <v-cols cols="2">
+                <!-- <v-cols cols="2">
           <v-combobox
               v-model="select2"
               :items="trends"
@@ -153,7 +153,7 @@
               style="margin-left:12px;"
               @change="changeTrend"
             ></v-combobox>
-        </v-cols>
+        </v-cols> -->
         <v-cols cols="2">
           <v-combobox
               v-model="select3"
@@ -225,7 +225,9 @@ export default {
     showTable:true,
     drawer: true,
     indicators:inds,
+    isFiltered:false,
     filteredIndicators:[],
+    primaryIndicators:[],
     selectedIndicator:{},
     areas:["Education & Workforce", "Prosperity", "Justice & Safety", "Health", "Infrastructure", "Natural Resources", "Government"],
     area_keys:["education", "prosperity", "justice", "health", "infrastructure", "natural resources", "government"],
@@ -280,10 +282,14 @@ export default {
     }
   },
   created(){
-    this.filteredIndicators=inds;
+    //this.filteredIndicators=inds;
     this.filteredIndicators = _.filter(inds, {
           "type":"Primary"
         });
+
+    this.primaryIndicators = _.filter(inds, {
+            "type":"Primary"
+          });
   },
   mounted(){
     this.loader();
@@ -294,24 +300,52 @@ export default {
       this.filteredIndicators = _.filter(inds, {
             "type":"Primary"
           });
+
+
+
+      this.isFiltered=false;
     },
     changeType(value){
+      if(this.isFiltered){
+          this.filteredIndicators = _.filter(this.filteredIndicators, {
+            "type":value
+          });
+      }
+      else{
+        this.filteredIndicators = _.filter(inds, {
+            "type":value
+          });
+      }
 
-      this.filteredIndicators = _.filter(inds, {
-          "type":value
-        });
     },
     changeTrend(value){
 
-      this.filteredIndicators = _.filter(inds, {
+      if(this.isFiltered){
+        this.filteredIndicators = _.filter(this.filteredIndicators, {
           "metric_trend":value
         });
+      }
+      else{
+        this.filteredIndicators = _.filter(this.primaryIndicators, {
+            "metric_trend":value
+          });
+      }
+      this.isFiltered=true;
     },
     changeArea(value){
 
-      this.filteredIndicators = _.filter(inds, {
+      if(this.isFiltered){
+        this.filteredIndicators = _.filter(this.filteredIndicators, {
           "policy_area":value
         });
+      }
+      else{
+        this.filteredIndicators = _.filter(this.primaryIndicators, {
+            "policy_area":value
+          });
+      }
+
+      this.isFiltered=true;
     },
 
 
@@ -319,7 +353,7 @@ export default {
       loadTable(area){
         this.showTable=true;
         this.filteredIndicators = _.filter(inds, {
-          "policy_area":area
+          "policy_area":area, "type":"Primary"
         });
     },
     loadIndicator(ind_name){
