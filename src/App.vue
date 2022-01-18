@@ -186,7 +186,7 @@
                 :items="filteredIndicators"
                 item-key="name"
                 class="table-striped elevation-1"
-                items-per-page="50"
+                items-per-page="62"
                 height="65vh"
               >
               <!-- <template v-slot:[`filteredIndicators.trend`]="{filteredIndicators}">
