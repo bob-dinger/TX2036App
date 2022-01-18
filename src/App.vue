@@ -123,20 +123,77 @@
       <v-container fluid>
 
         <v-row id="firstRow">
+          <v-col cols="12">
               <h2>Texas 2036 Indicators Update</h2>
               <hr/>
+          </v-col>
         </v-row>
+
+      <v-row>
+        <v-cols cols="2">
+          <v-combobox
+              v-model="select"
+              :items="combos"
+              label="Type"
+              outlined
+              dense
+              solo
+              style="margin-left:12px;"
+              @change="changeType"
+            ></v-combobox>
+        </v-cols>
+                <v-cols cols="2">
+          <v-combobox
+              v-model="select2"
+              :items="trends"
+              label="Trend"
+              outlined
+              dense
+              solo
+              style="margin-left:12px;"
+              @change="changeTrend"
+            ></v-combobox>
+        </v-cols>
+        <v-cols cols="2">
+          <v-combobox
+              v-model="select3"
+              :items="area_keys"
+              label="Policy Area"
+              outlined
+              solo
+              dense
+              style="margin-left:12px;"
+              @change="changeArea"
+            ></v-combobox>
+        </v-cols>
+                <v-cols cols="2">
+          <v-btn
+            style="margin-left:12px; height:40px;"
+              @click="clearFilters"
+            >Clear Filters</v-btn>
+        </v-cols>
+        </v-row>
+
         <v-row class="fill-height">
-            <v-col>
+            <v-col cols="12">
+              
                <v-data-table
                v-if="showTable"
                 dense
+                light
+                fixed-header
                 :headers="headers"
                 :items="filteredIndicators"
                 item-key="name"
-                class="elevation-1"
+                class="table-striped elevation-1"
                 items-per-page="50"
-              ></v-data-table>
+                height="65vh"
+              >
+              <!-- <template v-slot:[`filteredIndicators.trend`]="{filteredIndicators}">
+                <div :class="getStyle(filteredIndicators.trend)">{{ filteredIndicators.trend }}</div>
+              </template> -->
+              </v-data-table>
+            
               <div id="markdown" v-if="!showTable">
                   <hello-world v-bind:indicator="selectedIndicator"></hello-world>
                 
@@ -152,7 +209,7 @@
 </template>
 
 <script>
-import inds from './assets/indicators.json';
+import inds from './assets/indicators_2.json';
 import _ from 'lodash';
 import { marked } from 'marked';
 import JQuery from 'jquery';
@@ -163,21 +220,25 @@ export default {
   components: { HelloWorld },
   name: 'App',
   data: () => ({
+    combos:["Primary", "Secondary"],
+    trends:["up", "down", "flat"],
     showTable:true,
     drawer: true,
     indicators:inds,
     filteredIndicators:[],
     selectedIndicator:{},
-    areas:["Education", "Prosperity", "Justice", "Health", "Infrastructure", "Natural Resources", "Government"],
+    areas:["Education & Workforce", "Prosperity", "Justice & Safety", "Health", "Infrastructure", "Natural Resources", "Government"],
+    area_keys:["education", "prosperity", "justice", "health", "infrastructure", "natural resources", "government"],
     headers: [
+        { text: 'Goal #', value: 'goal_number' },
+        { text: 'Goal', value: 'goal' },
         {
           text: 'Name',
           align: 'start',
           sortable: false,
           value: 'Name',
         },
-        { text: 'Tagline', value: 'Tagline' },
-        { text: 'Goal', value: 'goal' },
+        // { text: 'Tagline', value: 'Tagline' },
         { text: 'Policy Area', value: 'policy_area' },
         { text: 'Type', value: 'type' },
         { text: 'Current Date', value: 'current_date' },
@@ -228,6 +289,33 @@ export default {
     this.loader();
   },
   methods:{
+    clearFilters(){
+      this.filteredIndicators=inds;
+      this.filteredIndicators = _.filter(inds, {
+            "type":"Primary"
+          });
+    },
+    changeType(value){
+
+      this.filteredIndicators = _.filter(inds, {
+          "type":value
+        });
+    },
+    changeTrend(value){
+
+      this.filteredIndicators = _.filter(inds, {
+          "metric_trend":value
+        });
+    },
+    changeArea(value){
+
+      this.filteredIndicators = _.filter(inds, {
+          "policy_area":value
+        });
+    },
+
+
+
       loadTable(area){
         this.showTable=true;
         this.filteredIndicators = _.filter(inds, {
@@ -239,8 +327,8 @@ export default {
           this.selectedIndicator = _.filter(inds, {
             "Name":ind_name
         });
-        console.log(ind_name);
-        console.log(this.selectedIndicator[0].Tagline);
+        //console.log(ind_name);
+        //console.log(this.selectedIndicator[0].Tagline);
 
 
 
@@ -248,8 +336,8 @@ export default {
     },
     loader(){
         $.get('https://mapfiles.blob.core.windows.net/misc/report.md', function(data) {
-              console.log("report data");
-              console.log(data);
+              //console.log("report data");
+              //console.log(data);
               $("#holder").html(marked.parse(data));
         });
         //       $.get('../assets/report.md', function(data) {
@@ -257,11 +345,17 @@ export default {
         //       console.log(data);
         //       $("#holder").html(marked.parse(data));
         // });
-    }
+    },
+    getStyle (trend) {
+      console.log("trend");
+      console.log(trend);
+      if (trend == "up") return 'red--text font-weight-bold'
+      else return ''
+    },
   }
 };
 </script>
-<style scoped>
+<style>
 #firstRow{
   justify-content: center;
   margin-top:8px !important;
@@ -270,7 +364,7 @@ export default {
   margin-top:15px !important;
 }
 .v-navigation-drawer{
-  width:350px !important;
+  width:200px !important;
 }
 .v-list-item__subtitle{
   padding:2px !important;
@@ -285,6 +379,38 @@ export default {
 }
 main{
   background-color: #3a4a9f;
-  margin-left:100px;
+  margin-left:0px;
+  
 }
+.v-main__content{
+  overflow-x: scroll;
+}
+fieldset{
+  background-color: white;
+}
+thead.v-data-table-header{
+  height:75px !important;
+}
+  tbody tr:nth-of-type(even) {
+    background-color: rgba(236, 237, 237);
+  }
+
+  tbody tr:nth-of-type(odd) {
+    background-color: rgb(250 ,250, 250);
+  }
+
+  .v-data-table-header {
+    background-color: rgba(182, 183, 187);
+    color: white;
+  }
+
+  .v-data-footer {
+    background-color: rgb(250 ,250, 250);
+  }
+
+.layout {
+  display: inline-block;
+  width: 100%;
+}
+
 </style>

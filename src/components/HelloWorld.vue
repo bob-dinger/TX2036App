@@ -47,10 +47,10 @@
                     <td>Goal</td>
                     <td>{{indicator[0].goal}}</td>
                   </tr>
-                  <tr>
+                  <!-- <tr>
                     <td>Tagline</td>
                     <td>{{indicator[0].Tagline}}</td>
-                  </tr>
+                  </tr> -->
                  <tr>
                     <td>Type</td>
                     <td>{{indicator[0].type}}</td>
