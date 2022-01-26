@@ -118,7 +118,7 @@
             </v-expansion-panels>
         </v-card>
 
-        <v-btn @click="loadChart()">Show Stacked Chart</v-btn>
+        <v-btn tile light @click="loadChart()" style="margin-left:8px;">Show Stacked Chart</v-btn>
     </v-navigation-drawer>
 
     <v-content app>
