@@ -23,7 +23,7 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-header @click="loadTable(`education`)">
-                  Education
+                  Education & Workforce
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                     <v-list-item v-for="h in education" :key="h.Name" @click="loadIndicator(h.Name)">
@@ -62,7 +62,7 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-header @click="loadTable(`justice`)">
-                  Justice
+                  Justice & Safety
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                     <v-list-item v-for="h in justice" :key="h.Name" @click="loadIndicator(h.Name)">
@@ -101,7 +101,7 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-header @click="loadTable(`government`)">
-                  Government
+                  Government Performance
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                     <v-list-item v-for="h in government" :key="h.Name" @click="loadIndicator(h.Name)">
@@ -117,6 +117,8 @@
 
             </v-expansion-panels>
         </v-card>
+
+        <v-btn @click="loadChart()">Show Stacked Chart</v-btn>
     </v-navigation-drawer>
 
     <v-content app>
@@ -194,8 +196,13 @@
               </template> -->
               </v-data-table>
             
-              <div id="markdown" v-if="!showTable">
+              <div id="markdown" v-if="showDetail">
                   <hello-world v-bind:indicator="selectedIndicator"></hello-world>
+                
+              </div>
+
+               <div id="charter" v-if="showChart">
+                  <Stacked></Stacked>
                 
               </div>
             </v-col>
@@ -212,17 +219,20 @@
 import inds from './assets/indicators_2.json';
 import _ from 'lodash';
 import { marked } from 'marked';
-import JQuery from 'jquery';
 import HelloWorld from './components/HelloWorld.vue';
-const $ = JQuery;
+//import JQuery from 'jquery';
+//const $ = JQuery;
+import Stacked from "./components/Stacked";
 
 export default {
-  components: { HelloWorld },
+  components: { HelloWorld, Stacked },
   name: 'App',
   data: () => ({
     combos:["Primary", "Secondary"],
-    trends:["up", "down", "flat"],
+    trends:["Up", "Down", "Flat"],
     showTable:true,
+    showChart:false,
+    showDetail:false,
     drawer: true,
     indicators:inds,
     isFiltered:false,
@@ -230,7 +240,36 @@ export default {
     primaryIndicators:[],
     selectedIndicator:{},
     areas:["Education & Workforce", "Prosperity", "Justice & Safety", "Health", "Infrastructure", "Natural Resources", "Government"],
-    area_keys:["education", "prosperity", "justice", "health", "infrastructure", "natural resources", "government"],
+    area_keys:[
+      {
+       name:"education",
+       title:"Education & Workforce"
+      },
+      {
+       name:"prosperity",
+       title:"Prosperity"
+      },
+           {
+       name:"justice",
+       title:"Justice & Safety"
+      },
+            {
+       name:"health",
+       title:"Health"
+      },
+            {
+       name:"infrastructure",
+       title:"Infrastructure"
+      },
+            {
+       name:"natural resources",
+       title:"Natural Resources"
+      },
+            {
+       name:"government",
+       title:"Government Performance"
+      }
+    ],
     headers: [
         { text: 'Goal #', value: 'goal_number' },
         { text: 'Goal', value: 'goal' },
@@ -290,9 +329,11 @@ export default {
     this.primaryIndicators = _.filter(inds, {
             "type":"Primary"
           });
+    this.filteredIndicators= _.orderBy(this.filteredIndicators, ['goal_number'],['asc']);
+    //this.primaryIndicators= _.orderBy(this.primaryIndicators, ['goal_number'],['asc']);
   },
   mounted(){
-    this.loader();
+    //this.loader();
   },
   methods:{
     clearFilters(){
@@ -350,14 +391,19 @@ export default {
 
 
 
-      loadTable(area){
+    loadTable(area){
         this.showTable=true;
-        this.filteredIndicators = _.filter(inds, {
+        this.showDetail=false;
+        this.showChart=false;
+         this.filteredIndicators= _.filter(inds, {
           "policy_area":area, "type":"Primary"
         });
+//        this.filteredIndicators= _.orderBy(this.filteredIndicators, ['goal_number'],['asc']);
     },
     loadIndicator(ind_name){
           this.showTable=false;
+          this.showChart=false;
+          this.showDetail=true;
           this.selectedIndicator = _.filter(inds, {
             "Name":ind_name
         });
@@ -368,24 +414,31 @@ export default {
 
 
     },
-    loader(){
-        $.get('https://mapfiles.blob.core.windows.net/misc/report.md', function(data) {
-              //console.log("report data");
-              //console.log(data);
-              $("#holder").html(marked.parse(data));
-        });
-        //       $.get('../assets/report.md', function(data) {
-        //       console.log("report data");
-        //       console.log(data);
-        //       $("#holder").html(marked.parse(data));
-        // });
-    },
+
     getStyle (trend) {
       console.log("trend");
       console.log(trend);
-      if (trend == "up") return 'red--text font-weight-bold'
+      if (trend == "Up") return 'red--text font-weight-bold'
       else return ''
     },
+    loadChart(){
+      this.showTable=false;
+      this.showDetail=false;
+      this.showChart=true;
+
+    }
+    //     loader(){
+    //     $.get('https://mapfiles.blob.core.windows.net/misc/report.md', function(data) {
+    //           //console.log("report data");
+    //           //console.log(data);
+    //           $("#holder").html(marked.parse(data));
+    //     });
+    //     //       $.get('../assets/report.md', function(data) {
+    //     //       console.log("report data");
+    //     //       console.log(data);
+    //     //       $("#holder").html(marked.parse(data));
+    //     // });
+    // }
   }
 };
 </script>
@@ -398,7 +451,7 @@ export default {
   margin-top:15px !important;
 }
 .v-navigation-drawer{
-  width:200px !important;
+  width:225px !important;
 }
 .v-list-item__subtitle{
   padding:2px !important;
