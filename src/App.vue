@@ -15,14 +15,14 @@
           <v-card
           class="mx-auto"
           max-width="400"
-          min-width="350"
+          min-width="400"
           app
           flat
         >
             <v-expansion-panels flat>
 
               <v-expansion-panel>
-                <v-expansion-panel-header @click="loadTable(`education`)">
+                <v-expansion-panel-header @click="loadTable(`Education`)">
                   Education & Workforce
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -35,7 +35,7 @@
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-header @click="loadTable(`prosperity`)">
+                <v-expansion-panel-header @click="loadTable(`Prosperity`)">
                   Prosperity
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -48,7 +48,7 @@
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-header @click="loadTable(`health`)">
+                <v-expansion-panel-header @click="loadTable(`Health`)">
                   Health
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -61,7 +61,7 @@
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-header @click="loadTable(`justice`)">
+                <v-expansion-panel-header @click="loadTable(`Justice`)">
                   Justice & Safety
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -74,7 +74,7 @@
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-header @click="loadTable(`infrastructure`)">
+                <v-expansion-panel-header @click="loadTable(`Infrastructure`)">
                   Infrastructure
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -87,7 +87,7 @@
               </v-expansion-panel>
 
                             <v-expansion-panel>
-                <v-expansion-panel-header @click="loadTable(`natural resources`)">
+                <v-expansion-panel-header @click="loadTable(`Natural Resources`)">
                   Natural Resources
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -100,7 +100,7 @@
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-header @click="loadTable(`government`)">
+                <v-expansion-panel-header @click="loadTable(`Government`)">
                   Government Performance
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -131,19 +131,8 @@
           </v-col>
         </v-row>
 
-      <v-row>
-        <!-- <v-cols cols="2">
-          <v-combobox
-              v-model="select"
-              :items="combos"
-              label="Type"
-              outlined
-              dense
-              solo
-              style="margin-left:12px;"
-              @change="changeType"
-            ></v-combobox>
-        </v-cols> -->
+      <v-row v-if="showTable">
+
        <v-cols cols="2">
           <v-combobox
               v-model="select2"
@@ -160,6 +149,8 @@
           <v-combobox
               v-model="select3"
               :items="area_keys"
+              item-text="title"
+              item-value="name"
               label="Policy Area"
               outlined
               solo
@@ -174,6 +165,15 @@
               @click="clearFilters"
             >Clear Filters</v-btn>
         </v-cols>
+        </v-row>
+
+          <v-row v-if="showDetail">
+              <v-cols cols="2">
+              <v-btn
+                style="margin-left:12px; height:40px;"
+                  @click="loadFirst"
+                >Back to Table</v-btn>
+            </v-cols>
         </v-row>
 
         <v-row class="fill-height">
@@ -191,9 +191,16 @@
                 items-per-page="62"
                 height="65vh"
               >
-              <!-- <template v-slot:[`filteredIndicators.trend`]="{filteredIndicators}">
+               <!-- <template v-slot:[`filteredIndicators.trend`]="{filteredIndicators}">
                 <div :class="getStyle(filteredIndicators.trend)">{{ filteredIndicators.trend }}</div>
-              </template> -->
+              </template>  -->
+              <template v-slot:item.metric_trend="{ item }">
+                <div :class="getStyle(item.metric_trend)">{{ item.metric_trend }}</div>
+              </template> 
+
+              <template v-slot:item.Name="{ item }">
+                <div @click="loadIndicator(item.Name)">{{ item.Name }}</div>
+              </template> 
               </v-data-table>
             
               <div id="markdown" v-if="showDetail">
@@ -216,7 +223,7 @@
 </template>
 
 <script>
-import inds from './assets/indicators_2.json';
+import inds from './assets/indicators_3.json';
 import _ from 'lodash';
 import { marked } from 'marked';
 import HelloWorld from './components/HelloWorld.vue';
@@ -240,34 +247,43 @@ export default {
     primaryIndicators:[],
     selectedIndicator:{},
     areas:["Education & Workforce", "Prosperity", "Justice & Safety", "Health", "Infrastructure", "Natural Resources", "Government"],
+    select3:null,
+    select2:null,
     area_keys:[
       {
        name:"education",
-       title:"Education & Workforce"
+       title:"Education & Workforce",
+       my_key:"Education"
       },
       {
        name:"prosperity",
-       title:"Prosperity"
+       title:"Prosperity",
+       my_key:"Prosperity"
       },
            {
        name:"justice",
-       title:"Justice & Safety"
+       title:"Justice & Safety",
+       my_key:"Justice"
       },
             {
        name:"health",
-       title:"Health"
+       title:"Health",
+       my_key:"Health"
       },
             {
        name:"infrastructure",
-       title:"Infrastructure"
+       title:"Infrastructure",
+       my_key:"Infrastructure"
       },
             {
        name:"natural resources",
-       title:"Natural Resources"
+       title:"Natural Resources",
+       my_key:"Natural Resources"
       },
             {
        name:"government",
-       title:"Government Performance"
+       title:"Government Performance",
+       my_key:"Government"
       }
     ],
     headers: [
@@ -299,25 +315,25 @@ export default {
         return  marked.parse('# Marked in Node.js\n\nRendered by **marked**.');
     },
     health: function(){
-      return  _.filter(inds, {"policy_area":"health", "type":"Primary"});
+      return  _.filter(inds, {"policy_area":"Health", "type":"Primary"});
     },
     justice: function(){
-      return  _.filter(inds, {"policy_area":"justice", "type":"Primary"});
+      return  _.filter(inds, {"policy_area":"Justice", "type":"Primary"});
     },
     education: function(){
-      return  _.filter(inds, {"policy_area":"education", "type":"Primary"});
+      return  _.filter(inds, {"policy_area":"Education", "type":"Primary"});
     },
     prosperity: function(){
-      return  _.filter(inds, {"policy_area":"prosperity", "type":"Primary"});
+      return  _.filter(inds, {"policy_area":"Prosperity", "type":"Primary"});
     },
     infrastructure: function(){
-      return  _.filter(inds, {"policy_area":"infrastructure", "type":"Primary"});
+      return  _.filter(inds, {"policy_area":"Infrastructure", "type":"Primary"});
     },
     naturalresources: function(){
-      return  _.filter(inds, {"policy_area":"natural resources", "type":"Primary"});
+      return  _.filter(inds, {"policy_area":"Natural Resources", "type":"Primary"});
     },
     government: function(){
-      return  _.filter(inds, {"policy_area":"government", "type":"Primary" });
+      return  _.filter(inds, {"policy_area":"Government", "type":"Primary" });
     }
   },
   created(){
@@ -336,12 +352,22 @@ export default {
     //this.loader();
   },
   methods:{
+    loadFirst(){
+        this.showTable=true;
+        this.showDetail=false;
+
+        this.filteredIndicators = _.filter(inds, {
+          "type":"Primary"
+        });
+    },
+
     clearFilters(){
       this.filteredIndicators=inds;
       this.filteredIndicators = _.filter(inds, {
             "type":"Primary"
           });
-
+      this.select3=null;
+      this.select2=null;
 
 
       this.isFiltered=false;
@@ -374,15 +400,17 @@ export default {
       this.isFiltered=true;
     },
     changeArea(value){
+      console.log("Area change");
+      console.log(value);
 
       if(this.isFiltered){
         this.filteredIndicators = _.filter(this.filteredIndicators, {
-          "policy_area":value
+          "policy_area":value.my_key
         });
       }
       else{
         this.filteredIndicators = _.filter(this.primaryIndicators, {
-            "policy_area":value
+            "policy_area":value.my_key
           });
       }
 
@@ -418,8 +446,18 @@ export default {
     getStyle (trend) {
       console.log("trend");
       console.log(trend);
-      if (trend == "Up") return 'red--text font-weight-bold'
-      else return ''
+      if (trend == "Up") {
+        return 'green--text font-weight-bold'
+      }
+      else if (trend == "Down") {
+        return 'red--text font-weight-bold'
+      }
+      else if (trend == "N/A") {
+        return 'grey--text font-weight-bold'
+      }
+      else {
+        return 'blue--text font-weight-bold'
+      }
     },
     loadChart(){
       this.showTable=false;
